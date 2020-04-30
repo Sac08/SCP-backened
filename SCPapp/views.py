@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 from rest_framework import status
 from .models import File
 from .serializers import serializers
+from django.shortcuts import render, redirect
 
 from .serializers import FileSerializer
 
@@ -38,3 +39,11 @@ class postData(APIView):
             
         else:
             return Response(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+def deleteData(request, id):
+    try:
+        field = File.objects.get(id = id)
+    except File.DoesNotExist:
+        return redirect('/getData')
+    field.delete()
+    return redirect('/getData')
