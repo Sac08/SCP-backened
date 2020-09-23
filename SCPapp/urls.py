@@ -2,8 +2,8 @@ from django.urls import path
 from .views import *
 
 urlpatterns = [
-    path('', FileUploadView.as_view()),
-    path('', FilewithId.as_view()),
-    #path('', FileWithConditions.as_view()),
-    path('', getData.as_view())
+    path('current_user/', current_user),
+    path('create/', UserList.as_view()),
+    path('', UserList.as_view()),
+    path('<rollNumber>/', loginDataId.as_view()),
 ]

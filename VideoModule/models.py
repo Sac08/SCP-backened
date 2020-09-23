@@ -24,7 +24,7 @@ class VideoContent(models.Model):
 
 class Comments(models.Model):
     #author = models.OneToOneField(User, default="author", on_delete = models.CASCADE)
-    author = models.CharField(max_length=20)
+    author = models.CharField(max_length=100)
     commentBody = models.CharField(default="", max_length=1000)
     videocontent = models.ForeignKey(VideoContent, default=None, on_delete=models.CASCADE, null=True)
     

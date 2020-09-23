@@ -15,8 +15,6 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.views.decorators.csrf import csrf_exempt
-
-
 from django.urls import path, include, re_path
 from django.conf import settings
 from SCPapp import views as s
@@ -24,6 +22,7 @@ from MockSchedularApp import views as m
 from SCPapp import views
 from django.conf.urls.static import static
 from VideoModule import views as VideoModuleViews
+from rest_framework_jwt.views import obtain_jwt_token
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -37,9 +36,6 @@ urlpatterns = [
     path('interviewData/', views.interviewData.as_view(), name="interviewData"),
     path('exp/comments/<int:id>/', views.getPostCommentsExp.as_view(), name="expCommentsId"),
     
-    path('loginData/<str:rollNumber>/', views.loginDataId.as_view(), name="loginDataRoll"),
-    path('loginData/', views.loginData.as_view(), name="loginData"),
-    
     path('getVideoData/', VideoModuleViews.getData.as_view(), name="getVideoData"),
     path('getVideoData/<int:id>/', VideoModuleViews.getDataById.as_view(), name="getVideoDataId"),
     path('postVideoData/', VideoModuleViews.postData.as_view(), name="postVideoData"),
@@ -50,6 +46,12 @@ urlpatterns = [
     re_path(r'^api/students/$', m.students_list),
     re_path(r'^api/students/([0-9]+)$', m.students_detail),
     re_path(r'^api/students/sendmail/([0-9]+)$', m.sendmail),
+
+    path('token-auth/', obtain_jwt_token),
+    path('loginData/', include('SCPapp.urls')),
+    path('interviewData/admin/', views.interviewAdminView, name="interviewDataAdmin"),
+    path('pyq/admin/', views.pyqAdminView, name="pyqAdmin"),
+    path('video/admin/', VideoModuleViews.videoAdminView, name="videoAdmin"),
 ]
 
 

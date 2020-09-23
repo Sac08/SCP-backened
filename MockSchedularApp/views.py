@@ -1,7 +1,8 @@
 from __future__ import print_function
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
+from rest_framework import permissions
 
 from .models import MockSchedular
 from .serializers import *
@@ -18,6 +19,7 @@ import json
 import os
 
 @api_view(['GET', 'POST'])
+@permission_classes([permissions.AllowAny])
 def students_list(request):
     if request.method == 'GET':
         data = MockSchedular.objects.all()
@@ -35,6 +37,7 @@ def students_list(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['PUT', 'DELETE', 'GET'])
+@permission_classes([permissions.AllowAny])
 def students_detail(request, pk):
     try:
         student = MockSchedular.objects.get(pk=pk)
@@ -60,6 +63,7 @@ def students_detail(request, pk):
         return Response(serializer.data)
 
 @api_view(['POST'])
+@permission_classes([permissions.AllowAny])
 def sendmail(request, pk):
     SCOPES = 'https://www.googleapis.com/auth/calendar'
     a = os.path.dirname(__file__)

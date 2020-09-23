@@ -6,6 +6,9 @@ from rest_framework.views import APIView
 from rest_framework import status
 from .models import VideoContent, Comments
 from .serializers import serializers
+from SCPapp.models import User
+from SCPapp.serializers import UserSerializer
+from rest_framework.decorators import api_view
 
 from .serializers import VideoContentSerializer, CommentsSerializer
 
@@ -22,7 +25,7 @@ class postData(APIView):
  
 class getData(APIView):
     def get(self, request, *args, **kwargs):
-        allVideoFiles = VideoContent.objects.all()
+        allVideoFiles = VideoContent.objects.filter(verified=True)
 
         for key in request.GET.keys():
             value = request.GET.get(key)
@@ -41,6 +44,18 @@ class getData(APIView):
         serializer = VideoContentSerializer(allVideoFiles, many=True)
         return Response(serializer.data)
 
+@api_view(['GET'])
+def videoAdminView(request):
+        user=User.objects.get(rollNumber=request.user)
+        user_serializer = UserSerializer(user)
+
+        role=user_serializer.data.get('role')
+        if (role=='admin'):
+            product1 = VideoContent.objects.filter(verified=False)
+            serializer = VideoContentSerializer(product1, many=True)
+            return Response(serializer.data)
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
+
 class getDataById(APIView):
     def get_object(self, id):
         try:
@@ -49,8 +64,17 @@ class getDataById(APIView):
             raise Http404
 
     def get(self, request, id):
+        user=User.objects.get(rollNumber=request.user)
+        user_serializer = UserSerializer(user)
+
+        role=user_serializer.data.get('role')
         allVideoFiles = self.get_object(id)
         serializer = VideoContentSerializer(allVideoFiles)
+        verified=serializer.data.get('verified')
+        # not returning anything if the page is not verified and user is a student
+        if ((role == 'Student') and (verified == False)):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
         return Response(serializer.data)
 
 class updateData(APIView):
@@ -91,6 +115,11 @@ class getPostComments(APIView):
         return Response(commentsSerializer.data)
 
     def post(self, request, id):
+        user=User.objects.get(rollNumber=request.user)
+        serializer = UserSerializer(user)
+        name=serializer.data.get('rollNumber')+"_"+serializer.data.get('username')
+        request.data['author']=name
+        
         commentsSerializer = CommentsSerializer(data=request.data)
         
         if commentsSerializer.is_valid():
